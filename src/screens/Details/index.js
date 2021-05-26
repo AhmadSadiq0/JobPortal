@@ -6,8 +6,10 @@ import { WebView } from 'react-native-webview';
 import HTMLView from 'react-native-htmlview';
 import { PRIMARY_COLOR } from '../../../res/colors';
 import { JOBPORTAL_IMG, SAVE_IMG, BACK_IMG } from '../../../res/drawable';
-import { isJobPortalUrl, createPDF, requestPermissions } from '../../helper/functions';
+import { INTERSTITIAL_AD_ID } from '../../../res/strings';
+import { isJobPortalUrl, createPDF, requestPermissions, showInterstitialAds } from '../../helper/functions';
 import { ImageButton } from '../../components';
+import { InterstitialAd, AdEventType, TestIds } from '@react-native-firebase/admob';
 
 const detailsScreen = (props) => {
     const { jobDetails } = props.route.params;
@@ -30,6 +32,7 @@ const detailsScreen = (props) => {
 
     return (
         <SafeAreaView style={{ flex: 1, margin: 5 }}>
+
             <ScrollView>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <ImageButton

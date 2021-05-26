@@ -7,30 +7,49 @@ import { PRIMARY_COLOR } from '../../../res/colors'
 import { manageNotifcations } from '../../helper/functions';
 import firebase from '../../../res/firebase';
 import { SLIDER_IMAGES, LOADING_GRID_LIST } from '../../../res/strings';
+import { InterstitialAd, AdEventType, TestIds } from '@react-native-firebase/admob';
+import { INTERSTITIAL_AD_ID } from '../../../res/strings';
+
 const MainScreen = (props) => {
-    const [loading, setLoading] = useState(true)
     const { state: jobsState, getJobs } = useContext(JobsContext);
-    const { jobs, error } = jobsState;
+    const { jobs, error,loading } = jobsState;
 
     const [pageNum, setPageNum] = useState(2);
+    //Interstitial Ad
+    const interstitial = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_ID);
 
     useEffect(() => {
         manageNotifcations()
         async function loadJobs() {
             await getJobs(1)
-            setLoading(false)
         }
         if (!jobs.length)
             loadJobs();
 
+        //Loading Interstitial ad
+        const eventListener = interstitial.onAdEvent(type => {
+            if (type === AdEventType.LOADED) {
+            }
+        });
+        // Start loading the interstitial straight away
+        interstitial.load();
+        // Unsubscribe from events on unmount
+        return () => {
+            eventListener();
+        };
     }, [jobs.length])
 
     const onPress = (jobDetails) => {
-        if (!loading)
-            props.navigation.navigate('Details', { jobDetails })
+        if (!loading) {
+            try {
+                props.navigation.navigate('Details', { jobDetails })
+                interstitial.show()
+            } catch (e) {
+
+            }
+        }
     }
     const onLoadMorePressed = async () => {
-        setLoading(true)
         if (jobs.length) {
             let count = pageNum;
             await getJobs(pageNum)
@@ -39,7 +58,6 @@ const MainScreen = (props) => {
         } else {
             await getJobs(1)
         }
-        setLoading(false)
     }
     return (
         <SafeAreaView style={styles.container}>
